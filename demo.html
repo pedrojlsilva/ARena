@@ -109,66 +109,68 @@ window.addEventListener('DOMContentLoaded', function() {
 
 		
 		//var perspT1 = PerspT(dstCorners, srcCorners);
-		var perspT1 = PerspT(srcCorners, pointCorners);
+		
 
 		// Wait for the video to start to play
 		video.addEventListener('play', function() {
 			// Every 33 milliseconds copy the video image to the canvas
 			setInterval(function() {
 				if (v.paused || v.ended) return;
-				// if(state == 0) {
+				 if(state == 0) {
 					con.fillStyle = '#000000';
 					con.fillRect(0, 0, w, h);	
 					
 					con.fillStyle = '#FF0000';
-					drawCircle(con,pointCorners[0], pointCorners[1],10);
+					drawCircle(con,pointCorners[0], pointCorners[1],30);
 					dstCorners[0] = pointCorners[0];
 					dstCorners[1] = pointCorners[1];
 
 					con.fillStyle = '#00FF00';
-					drawCircle(con,pointCorners[2],pointCorners[3],10);
+					drawCircle(con,pointCorners[2],pointCorners[3],30);
 					dstCorners[2] = pointCorners[2];
 					dstCorners[3] = pointCorners[3];
 					
 					con.fillStyle = '#00FFFF';
-					drawCircle(con,pointCorners[4],pointCorners[5],10);
+					drawCircle(con,pointCorners[4],pointCorners[5],30);
 					dstCorners[4] = pointCorners[4];
 					dstCorners[5] = pointCorners[5];
 					
 					con.fillStyle = '#FFFF00';
-					drawCircle(con,pointCorners[6],pointCorners[7],10);
+					drawCircle(con,pointCorners[6],pointCorners[7],30);
 					dstCorners[6] = pointCorners[6];
 					dstCorners[7] = pointCorners[7];
+				 }else if(state===4){
+					var perspT1 = PerspT(srcCorners, pointCorners);
+					var originalData = con.getImageData(0, 0, w, h);
+					var oData = originalData.data;
 
-				//con.drawImage(img, 0, 0, w, h);
+					var imageData = context2.getImageData(0, 0, 1280, 720);
+					var data = imageData.data;
 
-				var originalData = con.getImageData(0, 0, w, h);
-				var oData = originalData.data;
+					for( var i = 0; i < h; i++) {
+							for(var j = 0; j < w; j++) {
+								var srcPt = [j, i];
+								var dstPt1 = perspT1.transform(srcPt[0], srcPt[1]);
 
-				var imageData = context2.getImageData(0, 0, 1280, 720);
-				var data = imageData.data;
+								dstPt1[0] = Math.round(dstPt1[0]);
+								dstPt1[1] = Math.round(dstPt1[1]);
 
-				for( var i = 0; i < h; i++) {
-						for(var j = 0; j < w; j++) {
-							var srcPt = [j, i];
-							var dstPt1 = perspT1.transform(srcPt[0], srcPt[1]);
-
-							dstPt1[0] = Math.round(dstPt1[0]);
-							dstPt1[1] = Math.round(dstPt1[1]);
-
-							data[(dstPt1[1]*1280 + dstPt1[0])*4 + 0] = oData[(i*w + j)*4 + 0];
-							data[(dstPt1[1]*1280 + dstPt1[0])*4 + 1] = oData[(i*w + j)*4 + 1];
-							data[(dstPt1[1]*1280 + dstPt1[0])*4 + 2] = oData[(i*w + j)*4 + 2];
-							data[(dstPt1[1]*1280 + dstPt1[0])*4 + 3] = oData[(i*w + j)*4 + 3];
-							counter ++;
+								data[(dstPt1[1]*1280 + dstPt1[0])*4 + 0] = oData[(i*w + j)*4 + 0];
+								data[(dstPt1[1]*1280 + dstPt1[0])*4 + 1] = oData[(i*w + j)*4 + 1];
+								data[(dstPt1[1]*1280 + dstPt1[0])*4 + 2] = oData[(i*w + j)*4 + 2];
+								data[(dstPt1[1]*1280 + dstPt1[0])*4 + 3] = oData[(i*w + j)*4 + 3];
+								counter ++;
+							}
+						
 						}
-					
-					}
 					alert(counter + "!");
 					con.putImageData(imageData, 0, 0);
 
 
-				if (greyscale) goingGrey();
+					if (greyscale) goingGrey();
+				 	}
+
+				
 			}, 33);
 		}, false);
 
@@ -230,7 +232,7 @@ function drawCircle(c, x, y, r) {
 
     c.beginPath();
     c.fillStyle = '#000000';
-    c.arc(x, y, 2, 0, 2 * Math.PI, false);
+    c.arc(x, y, r/4, 0, 2 * Math.PI, false);
 	c.fill();
 }
 
