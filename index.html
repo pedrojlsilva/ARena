@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang='en'>
 <head>
@@ -58,10 +56,8 @@ window.addEventListener('DOMContentLoaded', function() {
 			pointCorners[5]=h*7/8,
 			pointCorners[6]=w/8,
 			pointCorners[7]=h*7/8;
-
-			
 			c.setAttribute('width', w);
-				c.setAttribute('height', h);
+			c.setAttribute('height', h);
 
 			v.play();
 			
@@ -85,8 +81,7 @@ window.addEventListener('DOMContentLoaded', function() {
 						// console.log("dist " + dist);
 						if(dist<20){
 							dragCorner[i] = true;
-							// dstCorners[2*i] = mousePos.x;
-    					// dstCorners[2*i+1] = mousePos.y;
+
 						}
 					}
     	    v.play();	
@@ -301,7 +296,7 @@ function myFunction(e) {
             img_width = img.width;
             img_height = img.height;
 
-            //context.drawImage(img, 0, 0, img_width, img_height);
+
             state = 4;
 
     }
