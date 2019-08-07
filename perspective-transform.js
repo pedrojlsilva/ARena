@@ -1,3 +1,4 @@
+
 // If the user is not including numeric.js already, add shim so this library works. Removes dependency on numeric.js
 
 (function(root) {

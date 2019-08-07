@@ -17,8 +17,8 @@
 		button {
 			border:none;
 			display:block;
-			padding:0.5em 1em;
-			margin:1%
+			padding:1.5em 3em;
+			margin:1% auto 0;
 			color:#fff;
 			background-color:#9f361b;
 		}
@@ -30,7 +30,6 @@
 var state = 0;
 
 var srcCorners = [0, 0, 0, 0, 0, 0, 0, 0];
-var srcCorners2 = [0, 0, 0, 0, 0, 0, 0, 0];
 var dstCorners = [0, 0, 0, 0, 0, 0, 0, 0];
 var pointCorners = [0, 0, 0, 0, 0, 0, 0, 0];
 var dragCorner = [false,false,false,false];
@@ -38,120 +37,130 @@ var dragCorner = [false,false,false,false];
 var index = 0;
 
 var img;
+greyscale=false;
 
 window.addEventListener('DOMContentLoaded', function() {
 		
 		var isStreaming = false,
-			v = document.getElementById('v'),
-			c = document.getElementById('c'),
-			grey = document.getElementById('grey');
-			con = c.getContext('2d');
-			w = 640, 
-			h = 480,
-			pointCorners[0]=w/8,
-			pointCorners[1]=h/8,
-			pointCorners[2]=w*7/8,
-			pointCorners[3]=h/8,
-			pointCorners[4]=w*7/8,
-			pointCorners[5]=h*7/8,
-			pointCorners[6]=w/8,
-			pointCorners[7]=h*7/8;
-			c.setAttribute('width', w);
-			c.setAttribute('height', h);
+		video = document.getElementById('v'),
+		canva = document.getElementById('canvas'),
+		grey = document.getElementById('grey');
+		con = canva.getContext('2d');
+		w = 1280*1.2, 
+		h = 720*1.2,
+		pointCorners[0]=w/8,
+		pointCorners[1]=h/8,
+		pointCorners[2]=w*7/8,
+		pointCorners[3]=h/8,
+		pointCorners[4]=w*7/8,
+		pointCorners[5]=h*7/8,
+		pointCorners[6]=w/8,
+		pointCorners[7]=h*7/8;
+		canva.setAttribute('width', w);
+		canva.setAttribute('height', h);
+		srcCorners[0] = 0;
+		srcCorners[1] = 0;
+		srcCorners[2] = 1280*1.2;
+		srcCorners[3] = 0;
+		srcCorners[4] = 1280*1.2;
+		srcCorners[5] = 720*1.2;
+		srcCorners[6] = 0;
+		srcCorners[7] = 720*1.2;
+		
+		video.play();
 
-			v.play();
-			
 
-		function getMousePos(canvas, evt) {
-        var rect = c.getBoundingClientRect();
+		function getMousePos(canva, evt) {
+        var rect = canva.getBoundingClientRect();
         return {
           x: evt.clientX - rect.left,
           y: evt.clientY - rect.top
         };
       }
 
-		c.addEventListener('mousedown', function(evt) {
-        	var mousePos = getMousePos(c, evt);
+	  canva.addEventListener('mousedown', function(evt) {
+        	var mousePos = getMousePos(canva, evt);
 					var calcDist = 0;
 					for(i=0; i<4; i++){
 						var dx = mousePos.x-pointCorners[2*i];
 						var dy = mousePos.y-pointCorners[2*i+1];
 						calcDist = dx*dx + dy*dy;
 						dist = Math.sqrt(calcDist);
-						// console.log("dist " + dist);
+						
 						if(dist<20){
 							dragCorner[i] = true;
-
 						}
 					}
-    	    v.play();	
+    	    video.play();	
 				}, false);
 				
-				c.addEventListener('mouseup', function(evt) {
+				canva.addEventListener('mouseup', function(evt) {
 					for(i=0; i<4; i++){
 						dragCorner[i] = false;
 						
 					}
-    	    v.play();	
+    	    video.play();	
 				}, false);
 				
-				c.addEventListener('mousemove', function(evt) {
-        	var mousePos = getMousePos(c, evt);
+				canva.addEventListener('mousemove', function(evt) {
+        	var mousePos = getMousePos(canvas, evt);
 					for(i=0; i<4; i++){
 						if (dragCorner[i]) {
 							pointCorners[2*i] = mousePos.x;
 							pointCorners[2*i+1] = mousePos.y;
 						}
 					}
-    	    v.play();	
+    	    video.play();	
         }, false);
-			
-	
+
+
+		
+		
+		
 
 		// Wait for the video to start to play
-		v.addEventListener('play', function() {
+		video.addEventListener('play', function() {
 			// Every 33 milliseconds copy the video image to the canvas
 			setInterval(function() {
 				//if (v.paused || v.ended) return;
-				if(state == 0) {
+				 if(state == 0) {
 					con.fillStyle = '#000000';
 					con.fillRect(0, 0, w, h);	
 					
 					con.fillStyle = '#FF0000';
-					drawCircle(con,pointCorners[0], pointCorners[1],10);
+					drawCircle(con,pointCorners[0], pointCorners[1],20);
 					dstCorners[0] = pointCorners[0];
 					dstCorners[1] = pointCorners[1];
 
 					con.fillStyle = '#00FF00';
-					drawCircle(con,pointCorners[2],pointCorners[3],10);
+					drawCircle(con,pointCorners[2],pointCorners[3],20);
 					dstCorners[2] = pointCorners[2];
 					dstCorners[3] = pointCorners[3];
 					
 					con.fillStyle = '#00FFFF';
-					drawCircle(con,pointCorners[4],pointCorners[5],10);
+					drawCircle(con,pointCorners[4],pointCorners[5],20);
 					dstCorners[4] = pointCorners[4];
 					dstCorners[5] = pointCorners[5];
 					
 					con.fillStyle = '#FFFF00';
-					drawCircle(con,pointCorners[6],pointCorners[7],10);
+					drawCircle(con,pointCorners[6],pointCorners[7],20);
 					dstCorners[6] = pointCorners[6];
 					dstCorners[7] = pointCorners[7];
-					
-				} else if(state == 1) {
-					con.drawImage(v, 0, 0, w, h);	
-					state = 2;
-				} else if(state == 3) {
+				 }else if(state===4){
 					var perspT1 = PerspT(dstCorners, srcCorners);
-					var dstCorners2 = [0, 0, w, 0, w, h, 0, h];
-					var perspT2 = PerspT(srcCorners2, dstCorners2);
 
-					
+					// var originalData = con.getImageData(0, 0, w, h);
+					// var oData = originalData.data;
 
-    				var canvas = document.createElement('canvas');
+					// // var imageData = context2.getImageData(0, 0, 1280, 720);
+					// // var data = imageData.data;
+
+					var canvas = document.createElement('canvas');
 					var context = canvas.getContext('2d');
 					canvas.width = w;
 					canvas.height = h;
 					context.drawImage(img, 0, 0, w, h);
+
 					var originalData = context.getImageData(0, 0, w, h);
 					var oData = originalData.data;
 
@@ -162,19 +171,13 @@ window.addEventListener('DOMContentLoaded', function() {
 					var data = imageData.data;
 
 					var counter = 0;
-
-					
-
 					for( var i = 0; i < h; i++) {
-						for(var j = 0; j < w; j++) {
-							var srcPt = [j, i];
-							var dstPt1 = perspT1.transform(srcPt[0], srcPt[1]);
-							var dstPt2 = perspT2.transform(dstPt1[0], dstPt1[1]);
+							for(var j = 0; j < w; j++) {
+								var srcPt = [j, i];
+								var dstPt2 = perspT1.transform(srcPt[0], srcPt[1]);
 
 							dstPt2[0] = Math.round(dstPt2[0]);
 							dstPt2[1] = Math.round(dstPt2[1]);
-
-							
 
 							if(dstPt2[0]>= 0 && dstPt2[0]<w && dstPt2[1]>=0 && dstPt2[1]<h){
 								data[(i*w + j)*4 + 0] = oData[(dstPt2[1]*w + dstPt2[0])*4 + 0];
@@ -183,27 +186,18 @@ window.addEventListener('DOMContentLoaded', function() {
 								data[(i*w + j)*4 + 3] = oData[(dstPt2[1]*w + dstPt2[0])*4 + 3];
 								counter++;
 							}
-							
+						
 						}
 					}
-
 					alert(counter + "!");
-
-					
 					con.putImageData(imageData, 0, 0);
 
-    				state = 5;
 
-				} else if(state == 4) {
-					con.drawImage(img, 0, 0, w, h);
-				} else if(state == 5) {
+					if (greyscale) goingGrey();
+					state = 5;
+				 	}
 
-
-				} else {
-
-				}
-
-				if (greyscale) goingGrey();
+				
 			}, 33);
 		}, false);
 
@@ -221,41 +215,38 @@ window.addEventListener('DOMContentLoaded', function() {
 
 		// When the grey button is clicked, toggle the greyness indicator
 		grey.addEventListener('click', function() {	greyscale = !greyscale; }, false);
-		
 	});
 
 window.addEventListener('keydown',this.check,false);
 
 function check(e) {
-	var elem = document.getElementById("c");
+	var elem = document.getElementById("canvas");
     if(e.keyCode == 80 || e.keyCode == 83) {
 		if (elem.requestFullscreen) {
 		  elem.requestFullscreen();
+		  video.play();
 		} else if (elem.mozRequestFullScreen) {
 		  elem.mozRequestFullScreen();
+		  video.play();
 		} else if (elem.webkitRequestFullscreen) {
 		  elem.webkitRequestFullscreen();
+		  video.play();
 		}
 		elem.style.width = window.innerWidth + "px";
-		elem.style.height = "100%";
+		elem.style.height = window.innerHeight + "px";
 
 
-    	if(e.keyCode == 80) {
-				state = 0;
-			}
+    	if(e.keyCode == 80 || e.keyCode == 83) state = 0;
 
     } else if(e.keyCode == 81) { // q
     	index = 0;
     	
-    	state = 1;
+    	state = 0;
     } else if(e.keyCode == 82) { // r
-
-    	state = 3;
+    	state = 4;
     } else {
-
-  			elem.style.width = "640px";
-    		elem.style.height = "480px";
-
+  			elem.style.width = 1280*1.2 + "px";;
+    		elem.style.height = 720*1.2 + "px";;
     }
     
     
@@ -268,43 +259,21 @@ function drawCircle(c, x, y, r) {
 
     c.beginPath();
     c.fillStyle = '#000000';
-    c.arc(x, y, 2, 0, 2 * Math.PI, false);
+    c.arc(x, y, r/4, 0, 2 * Math.PI, false);
 	c.fill();
-
-
 }
 
 function storeGuess(event) {
-    var rect = document.getElementById("c");
+    var rect = document.getElementById("canvas");
     var x = event.offsetX - rect.offsetLeft;
     var y = event.offsetY - rect.offsetTop;
-
-
     srcCorners[index++] = x;
     srcCorners[index++] = y;
 }
 
-function myFunction(e) {
-	alert(e.target.files[0]);
-	var URL = window.webkitURL || window.URL;
-    var url = URL.createObjectURL(e.target.files[0]);
-    //img.src = url;
-    img.srcObject = e.target.files[0];
 
-    img.onload = function() {
-
-            img_width = img.width;
-            img_height = img.height;
-
-
-            state = 4;
-
-    }
-    
-}
 
 function loadImg(event) {
-
     var input = event.target;
     var reader = new FileReader();
     reader.onload = function() {
@@ -323,34 +292,11 @@ function loadImg(event) {
 	</script>
 </head>
 <body>
-	<h2>ARena : a projection mapping tool for line follower robots arena construction</h2>
-	<h5><a href="mailto:jmxnt@cin.ufpe.br">Jo�o Marcelo Teixeira</a>, <a href="mailto:dbbh@cin.ufpe.br">Diogo B. Henriques</a>, <a href="mailto:vt@cin.ufpe.br">Veronica Teichrieb</a></h6>
-	This work was presented at <a href="http://usuarios.upf.br/~rieder/svr2017/submissions_demos.html">SVR 2017 demo sessions</a>.<br><br>
-	<video id='v'></video>	
-	<canvas id='c'></canvas>
+	<video id='v'></video>
+	<canvas id='canvas'></canvas>
 	<div id="coordinates"></div>
 	<br>Select image for projection:<br>
 	<input type='file' accept='image/*' onchange='loadImg(event)'><br>
 	<br><br>
-	<b>Step-by-Step instructions:</b><br>
-	0) Connect projector to computer and duplicate views<br>
-	1) Place the camera pointing to the projection area. Make sure the entire projection area is viewed by the camera<br>
-	2) Select image for projection<br>
-	3) Press 'P' to go full screen<br>
-	4) Press 'Q' to capture image from camera<br>
-	5) Press 'ESC' key until canvas image comes back to its original size<br>
-	6) Click on the four colored points projected in the following order: Red, Green, Blue and Yellow<br>
-	7) Click on the four corner points in which the image will be projected (top-left, top-right, bottom-right and bottom-left)<br>
-	8) Press 'R' key to compute the calibration and render the projection<br>
-	9) Press 'S' key to go full screen<br>
-	10) Use the black tape to cover the projected black areas<br>
-	<br>
-	<b>Video with demonstration:</b><br>
-	<iframe width="560" height="315" src="https://www.youtube.com/embed/8eyjPiZuZkQ" frameborder="0" allowfullscreen></iframe>
-	<br>
-	<br>
-	<center><b>Made by:</b><br>
-	<a href="http://www.cin.ufpe.br/~voxarlabs">Voxar Labs</a> | <a href="https://www.facebook.com/maracatronics">Maracatronics</a><br>
-	Federal University of Pernambuco, Brazil</center>
 </body>
 </html>
